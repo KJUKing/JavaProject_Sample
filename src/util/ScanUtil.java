@@ -19,6 +19,10 @@ public class ScanUtil   {
 		System.out.print(print);
 		return nextInt();
 	}
+
+	public static int menu() {
+		return nextInt("메뉴:");
+	}
 	
 	private static int nextInt() {
 		while(true) {
