@@ -2,7 +2,6 @@ package service;
 
 import controller.MainController;
 import dao.MemberDao;
-import util.JDBCUtil;
 
 import java.util.List;
 import java.util.Map;
@@ -38,8 +37,25 @@ public class MemberService {
         return pass;
     }
 
+    public void login(int memNo) {
+        Map<String, Object> map = dao.login(memNo);
+        MainController.sessionStorage.put("member", map);
+    }
+
     public List<Map<String, Object>> memberList() {
 
         return dao.memberList();
+    }
+
+    public void memberUpdatePw(List<Object> param) {
+        dao.memberUpdatePw(param);
+    }
+
+    public void memberUpdateID(List<Object> param) {
+        dao.memberUpdateId(param);
+    }
+
+    public void delete(List<Object> param) {
+        dao.memberDelete(param);
     }
 }

@@ -1,6 +1,7 @@
 package controller;
 
 import java.math.BigDecimal;
+import java.sql.Array;
 import java.sql.SQLOutput;
 import java.sql.Timestamp;
 import java.util.ArrayList;
@@ -41,10 +42,10 @@ public class MainController{
 					view = memberList();
 					break;
 				case MEMBER_UPDATE:
-					view = memberMain();
+					view = memberUpdate();
 					break;
 				case MEMBER_DELETE:
-					view = memberMain();
+					view = memberDelete();
 					break;
 				default:
 					break;
@@ -53,11 +54,80 @@ public class MainController{
 		}
 	}
 
+	private View memberUpdate() {
+		System.out.println("회원 수정 페이지");
+
+		System.out.println("1. 비밀번호 수정");
+		System.out.println("2. 이름 수정");
+		System.out.println("3. 메일 메뉴");
+
+		int sel = ScanUtil.menu();
+//		Map<String, Object> member = (Map<String, Object>) sessionStorage.get("member");
+		Map<String, Object> member = (Map<String, Object>) sessionStorage.get("member");
+		BigDecimal no = (BigDecimal) member.get("MEM_NO");
+		int memNo = no.intValue();
+
+		if (sel == 1) {
+			List<Object> param = new ArrayList<>();
+			String pass = ScanUtil.nextLine("PW : ");
+			param.add(pass);
+			param.add(memNo);
+
+			memberService.memberUpdatePw(param);
+
+			return View.MEMBER_MAIN;
+
+		} else if (sel == 2) {
+
+			List<Object> param = new ArrayList<>();
+			String name = ScanUtil.nextLine("NAME : ");
+			param.add(name);
+			param.add(memNo);
+
+			memberService.memberUpdateID(param);
+			memberService.login(memNo);
+			member = (Map<String, Object>) sessionStorage.get("member");
+			System.out.println(member.get("MEM_NAME")+"님 정보가 수정되었습니다.");
+			return View.MEMBER_MAIN;
+
+		} else if (sel == 3) {
+			return View.MEMBER_MAIN;
+		} else {
+			return View.MEMBER_MAIN;
+		}
+	}
+
+	private View memberDelete() {
+		System.out.println("회원 탈퇴");
+		System.out.println("1. 회원 탈퇴");
+		System.out.println("2. 메인 메뉴");
+		int sel = ScanUtil.menu();
+		switch (sel) {
+			case 1:
+				Map<String, Object> member = (Map<String, Object>) sessionStorage.get("member");
+				BigDecimal no = (BigDecimal) member.get("MEM_NO");
+				List<Object> param = new ArrayList<>();
+				int memNo = no.intValue();
+				param.add(memNo);
+				memberService.delete(param);
+				sessionStorage.remove("member");
+				System.out.println(member.get("MEM_NAME")+"님이 탈퇴 되었습니다.");
+				return  View.MAIN;
+			case 2:
+				return  View.MEMBER_MAIN;
+			default:
+				return  View.MEMBER_DELETE;
+		}
+	}
+
 	private View memberList() {
 		System.out.println("회원 리스트 페이지");
 		List<Map<String, Object>> memberList = memberService.memberList();
 		for (Map<String, Object> map : memberList) {
 			BigDecimal no = (BigDecimal) map.get("MEM_NO");
+//			int num = no.intValue();
+//			long num = no.longValue();
+//			double num = no.doubleValue();
 			String name = (String) map.get("MEM_NAME");
 //			Timestamp date = (Timestamp) map.get("JOIN_DATE");
 			String date = (String) map.get("JOIN_DATE");
@@ -72,6 +142,7 @@ public class MainController{
 		System.out.println("1. 전체 회원 리스트 출력");
 		System.out.println("2. 회원정보 수정");
 		System.out.println("3. 회원탈퇴");
+		System.out.println("4. 로그아웃");
 
 		int sel = ScanUtil.menu();
 		switch (sel) {
@@ -81,6 +152,11 @@ public class MainController{
 				return View.MEMBER_UPDATE;
 			case 3:
 				return View.MEMBER_DELETE;
+			case 4:
+				Map member = (Map) sessionStorage.remove("member");
+				System.out.println(member.get("MEM_NAME")+"님 로그아웃 하셨습니다.");
+				return View.MAIN;
+
 			default:
 				return View.MEMBER_MAIN;
 		}
